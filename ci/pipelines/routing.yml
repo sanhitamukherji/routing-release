@@ -133,6 +133,12 @@ resources:
     repository: bosh-backup-and-restore
     access_token: ((github_access_token))
 
+- name: indicator-protocol-release
+  type: github-release
+  source:
+    user: pivotal
+    repository: monitoring-indicator-protocol
+
 #REPOS
 - name: deployments-routing
   type: git
@@ -716,6 +722,25 @@ jobs:
     file: routing-release-ci/ci/tasks/syslog-test/task.yml
     params:
       ENVIRONMENT: batman
+
+- name: batman-indicator-protocol-test
+  serial_groups: [batman]
+  plan:
+    - get: routing-release
+      passed: [batman-deploy-cf]
+      trigger: true
+    - get: deployments-routing
+    - get: routing-release-ci
+    - get: cf-deployment
+      passed: [batman-deploy-cf]
+      trigger: true
+    - get: indicator-protocol-release
+      version:
+        tag: "v0.8.2"
+    - task: indicator-protocol-test
+      file: routing-release-ci/ci/tasks/indicator-protocol-test/task.yml
+      params:
+        ENVIRONMENT: batman
 
 - name: batman-bosh-cleanup
   serial_groups: [batman]
