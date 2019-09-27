@@ -43,6 +43,11 @@
     if route['prepend_instance_index']
       route['uris'].map! { |uri| "#{spec.index}-#{uri}" }
     end
+
+    if route['external_port'].is_a?(Array)
+      route['external_port'] = route['external_port'][spec.index]
+      route['port'] = route['port'][spec.index]
+    end
   end
 
   host = nil
